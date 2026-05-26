@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canari — Listener App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0A0A08; color:#F0EDE4; font-family:'Poppins',sans-serif; overflow:hidden; height:100vh; }
+  body::before {
+    content:''; position:fixed; inset:0; opacity:.4; pointer-events:none; z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+  /* Project nav (top-left) — link back to hub */
+  .hub-link {
+    position:fixed; top:18px; left:20px; z-index:100;
+    display:flex; align-items:center; gap:10px;
+    padding:9px 16px 9px 12px; border-radius:100px;
+    background:rgba(20,20,18,0.9); border:1px solid rgba(255,255,255,0.08);
+    color:rgba(240,237,228,0.85); font-size:12px; font-weight:500;
+    text-decoration:none; backdrop-filter:blur(12px);
+    transition:border-color .2s, color .2s;
+  }
+  .hub-link:hover { border-color:rgba(245,166,35,0.4); color:#F5A623; }
+  .hub-link svg { transform:rotate(180deg); }
+  #root { width:100vw; height:100vh; }
+
+  /* Persistent context switcher (always visible, not Tweaks-gated) */
+  .ctx-switcher { position:fixed; top:18px; left:50%; transform:translateX(-50%); z-index:99; display:flex; flex-direction:column; align-items:center; gap:8px; font-family:'Poppins',sans-serif; }
+  .ctx-switcher-label { font-size:9.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:rgba(240,237,228,0.4); display:flex; align-items:center; gap:8px; }
+  .ctx-switcher-label::before, .ctx-switcher-label::after { content:''; display:block; width:16px; height:1px; background:rgba(245,166,35,0.3); }
+  .ctx-switcher-row { display:flex; gap:4px; background:rgba(20,20,18,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:100px; padding:4px; backdrop-filter:blur(20px); }
+  .ctx-btn { padding:7px 14px; border-radius:100px; background:none; border:1px solid transparent; cursor:pointer; font-family:'Poppins',sans-serif; font-size:11.5px; font-weight:500; color:rgba(240,237,228,0.6); transition:all .2s; letter-spacing:.01em; display:inline-flex; align-items:center; gap:6px; }
+  .ctx-btn:hover { color:#fff; }
+  .ctx-btn.on { background:rgba(245,166,35,0.12); color:#F5A623; border-color:rgba(245,166,35,0.4); }
+  .ctx-btn span:first-child { font-size:13px; line-height:1; }
+</style>
+</head>
+<body>
+
+<a class="hub-link" href="index.html">
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  Project hub
+</a>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="listener-shared.jsx"></script>
+<script type="text/babel" src="listener-screens-a.jsx"></script>
+<script type="text/babel" src="listener-screens-b.jsx"></script>
+<script type="text/babel" src="listener-motion.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
+  "context": "rainy",
+  "showLabels": true
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULS);
+  const ctx = t.context;
+
+  return (
+    <>
+      <DesignCanvas>
+
+        {/* Section 1 — The headline screens */}
+        <DCSection id="headline" title="Now Playing — drill down" subtitle="Ambient by default. Tap the version pill to expand into the engine. Tap the context pill to peek at what's adapting right now.">
+
+          <DCArtboard id="ambient" label="Ambient · default Now Playing" width={402} height={872}>
+            <ScreenNowPlayingAmbient ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="expanded" label="Expanded · the engine view" width={402} height={872}>
+            <ScreenNowPlayingFore ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="drawer" label="This-moment drawer · why this version" width={402} height={872}>
+            <ScreenContextDrawer ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="motion" label="Live in motion · watch it adapt" width={402} height={872}>
+            <ScreenNowPlayingMotion ctx={ctx}/>
+          </DCArtboard>
+
+        </DCSection>
+
+        {/* Section 2 — Around the app */}
+        <DCSection id="around" title="Around the app" subtitle="The product surfaces that surround Now Playing.">
+
+          <DCArtboard id="onboarding" label="Onboarding · welcome + permissions" width={402} height={872}>
+            <ScreenOnboarding/>
+          </DCArtboard>
+
+          <DCArtboard id="home" label="For You · contextual home feed" width={402} height={872}>
+            <ScreenHome ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="song" label="Song detail · versions you've heard" width={402} height={872}>
+            <ScreenSongDetail ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="library" label="Library · liked, versions, saved moments" width={402} height={872}>
+            <ScreenLibrary ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="search" label="Search · browse by moment" width={402} height={872}>
+            <ScreenSearch ctx={ctx}/>
+          </DCArtboard>
+
+          <DCArtboard id="profile" label="Profile · context engine settings" width={402} height={872}>
+            <ScreenProfile ctx={ctx}/>
+          </DCArtboard>
+
+        </DCSection>
+
+        <DCPostIt top={70} right={40} rotate={-3} width={230}>
+          Ambient is the default. The engine view and the "this moment" drawer are both drill-downs from it — like Spotify's expand. The Live frame is animated; sit with it for 10 seconds.
+        </DCPostIt>
+
+      </DesignCanvas>
+
+      {/* Persistent context switcher — not gated by Tweaks toggle */}
+      <div className="ctx-switcher">
+        <div className="ctx-switcher-label">Live context</div>
+        <div className="ctx-switcher-row">
+          {[
+            { v:'rainy',   e:'🌧', l:'Rainy' },
+            { v:'morning', e:'☀️', l:'Morning' },
+            { v:'night',   e:'🌙', l:'Late' },
+            { v:'golden',  e:'🌅', l:'Golden' },
+          ].map(o => (
+            <button key={o.v} className={'ctx-btn ' + (ctx === o.v ? 'on' : '')}
+              onClick={() => setTweak('context', o.v)}>
+              <span>{o.e}</span><span>{o.l}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Live context">
+          <TweakRadio
+            label="Moment"
+            value={t.context}
+            onChange={(v) => setTweak('context', v)}
+            options={[
+              { value:'rainy', label:'🌧 Rainy' },
+              { value:'morning', label:'☀️ Morning' },
+              { value:'night', label:'🌙 Late' },
+              { value:'golden', label:'🌅 Golden' },
+            ]}
+          />
+          <p style={{ fontSize:11, color:'rgba(255,255,255,0.5)', lineHeight:1.55, margin:'10px 0 0', fontFamily:'Poppins,sans-serif', fontWeight:300 }}>
+            Changes the live signal across every screen — see how each surface adapts.
+          </p>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+
+</body>
+</html>
