@@ -365,6 +365,32 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6}
 .callout-body p{font-size:11.5px;color:var(--text-muted);font-weight:300;line-height:1.55}
 
 @media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.insights-grid{grid-template-columns:1fr}.weather-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Mobile = analytics only */
+.mobile-banner{display:none}
+@media(max-width:900px){
+  .lib-tabs{display:none}
+  .mobile-banner{display:flex;align-items:flex-start;gap:10px;background:linear-gradient(160deg,rgba(245,166,35,0.06),rgba(245,166,35,0.01));border:1px solid rgba(245,166,35,0.2);border-radius:12px;padding:14px 16px;margin:0 0 18px;font-size:12.5px;color:var(--text-muted);line-height:1.55;font-weight:300}
+  .mobile-banner-icon{width:26px;height:26px;border-radius:7px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .mobile-banner strong{color:var(--text);font-weight:500;display:block;margin-bottom:2px;font-size:13px}
+  .lib-body{padding:18px 16px}
+  .perf-body, .insights-body{padding:18px 16px !important}
+  .lib-top{flex-direction:column;align-items:flex-start;gap:14px}
+  .lib-top .date-range{align-self:stretch}
+  .lib-top .date-range button{flex:1}
+  .perf-head{flex-direction:column;align-items:flex-start;gap:14px}
+  .perf-head .header-right{align-self:stretch}
+  .app-header{padding:0 12px}
+  .header-crumb{font-size:11px}
+  .header-right{gap:6px}
+  .header-right .date-range{display:none}
+  .leader-row{padding:10px 12px}
+  .leader-name{font-size:12.5px}
+  .bar-row{padding:8px 10px;gap:8px}
+  .bar-name{min-width:auto;font-size:11.5px}
+  .bar-val{min-width:48px;font-size:10.5px}
+  .hub-link{font-size:10px;padding:6px 10px 6px 9px}
+}
 </style>
 </head>
 <body>
@@ -692,6 +718,7 @@ function defaultState(stemType,tKey){
 
 // ─── LIBRARY ─────────────────────────────────────────────
 function switchLibTab(tab){
+  if (window.innerWidth <= 900 && tab !== 'insights') tab = 'insights';
   libTab=tab;
   document.getElementById('tab-songs').classList.toggle('active',tab==='songs');
   document.getElementById('tab-triggers').classList.toggle('active',tab==='triggers');
@@ -702,6 +729,7 @@ function switchLibTab(tab){
 function renderLibrary(){
   const body=document.getElementById('libBody');
   body.innerHTML='';
+  if (window.innerWidth <= 900 && libTab !== 'insights') libTab = 'insights';
   if(libTab==='songs') renderSongsTab(body);
   else if(libTab==='triggers') renderTriggersTab(body);
   else if(libTab==='insights') renderInsightsTab(body);
@@ -1374,6 +1402,10 @@ function renderInsightsTab(body){
   const topCities=Object.entries(cityAgg).sort((a,b)=>b[1]-a[1]).slice(0,8);
 
   body.innerHTML=`
+    <div class="mobile-banner">
+      <div class="mobile-banner-icon">📊</div>
+      <div><strong>Analytics — mobile view.</strong>Open Studio on a desktop to edit songs, manage trigger sets, and publish new versions.</div>
+    </div>
     <div class="lib-top">
       <div><div class="lib-title">Insights</div><div class="lib-subtitle">How your music is living in the world.</div></div>
       <div class="date-range">
