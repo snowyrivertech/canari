@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canari — Listener (interactive)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0A0A08; color:#F0EDE4; font-family:'Poppins',sans-serif; min-height:100vh; overflow:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0; opacity:.5; pointer-events:none; z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+  .hub-link {
+    position:fixed; top:18px; left:20px; z-index:200;
+    display:flex; align-items:center; gap:10px;
+    padding:9px 16px 9px 12px; border-radius:100px;
+    background:rgba(20,20,18,0.92); border:1px solid rgba(255,255,255,0.08);
+    color:rgba(240,237,228,0.85); font-size:12px; font-weight:500;
+    text-decoration:none; backdrop-filter:blur(12px);
+    transition:border-color .2s, color .2s;
+  }
+  .hub-link:hover { border-color:rgba(245,166,35,0.4); color:#F5A623; }
+  .hub-link svg { transform:rotate(180deg); }
+
+  #root { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; position:relative; z-index:5; }
+
+  /* Auto-scale wrapper around the stage so it fits any viewport */
+  .stage-scaler { transform-origin: center center; transition: transform .3s ease; }
+
+  @keyframes canariAmbientIn { from { opacity:0 } to { opacity:1 } }
+
+  /* Persistent context switcher (always visible — not gated by Tweaks panel) */
+  .phone-stack { display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .ctx-switcher { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .ctx-switcher-label { font-size:9.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:rgba(240,237,228,0.4); display:flex; align-items:center; gap:8px; }
+  .ctx-switcher-label::before, .ctx-switcher-label::after { content:''; display:block; width:16px; height:1px; background:rgba(245,166,35,0.3); }
+  .ctx-switcher-row { display:flex; gap:4px; background:rgba(20,20,18,0.78); border:1px solid rgba(255,255,255,0.07); border-radius:100px; padding:4px; backdrop-filter:blur(20px); }
+  .ctx-btn { padding:7px 14px; border-radius:100px; background:none; border:1px solid transparent; cursor:pointer; font-family:'Poppins',sans-serif; font-size:11.5px; font-weight:500; color:rgba(240,237,228,0.6); transition:all .2s; letter-spacing:.01em; display:inline-flex; align-items:center; gap:6px; }
+  .ctx-btn:hover { color:#fff; }
+  .ctx-btn.on { background:rgba(245,166,35,0.12); color:#F5A623; border-color:rgba(245,166,35,0.4); }
+  .ctx-btn span:first-child { font-size:13px; line-height:1; }
+
+  /* Stage: phone + side info */
+  .stage { display:flex; align-items:center; gap:60px; position:relative; }
+
+  /* Hint card on side */
+  .hints { width:240px; display:flex; flex-direction:column; gap:14px; opacity:0; animation:hintsIn 1.2s 1.5s ease both; }
+  @keyframes hintsIn { from{ opacity:0; transform:translateY(8px) } to{ opacity:1 } }
+  .hint-card { background:rgba(20,20,18,0.7); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(20px); border-radius:14px; padding:16px 18px; }
+  .hint-eyebrow { font-size:9.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#F5A623; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .hint-eyebrow::before { content:''; width:5px; height:5px; border-radius:50%; background:#F5A623; box-shadow:0 0 8px #F5A623; }
+  .hint-title { font-family:'DM Serif Display',serif; font-style:italic; font-size:16px; color:#F0EDE4; line-height:1.25; margin-bottom:10px; }
+  .hint-list { display:flex; flex-direction:column; gap:6px; }
+  .hint-list li { font-size:11.5px; color:rgba(240,237,228,0.65); font-weight:300; line-height:1.5; list-style:none; padding-left:14px; position:relative; }
+  .hint-list li::before { content:''; position:absolute; left:0; top:7px; width:4px; height:4px; border-radius:50%; background:rgba(245,166,35,0.7); }
+  .hint-list li em { font-style:italic; color:rgba(245,166,35,0.85); font-weight:400; }
+  .hint-foot { font-size:10.5px; color:rgba(240,237,228,0.35); font-style:italic; font-weight:300; line-height:1.6; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); margin-top:14px; }
+
+  @media(max-width:1100px){
+    .hints { display:none; }
+    .stage { gap:0; }
+  }
+  @media(max-width:760px){
+    .hub-link { top:12px; left:12px; padding:7px 12px 7px 10px; font-size:11px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="hub-link" href="index.html">
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  Project hub
+</a>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="listener-shared.jsx"></script>
+<script type="text/babel" src="listener-ambient.jsx"></script>
+<script type="text/babel" src="listener-app-screens.jsx"></script>
+<script type="text/babel" src="listener-app.jsx"></script>
+<script type="text/babel" src="listener-clip.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
+  "context": "night"
+}/*EDITMODE-END*/;
+
+function ProtoApp() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULS);
+  const overrideCtx = t.context;
+
+  const [tab, setTab] = React.useState('feed');
+  const [npView, setNpView] = React.useState(null);   // null | 'ambient' | 'expanded'
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [actionOpen, setActionOpen] = React.useState(false);
+  const [clipMode, setClipMode] = React.useState(false);
+  const [shareClip, setShareClip] = React.useState(null); // null | {start,end,branding}
+  const [songIdx, setSongIdx] = React.useState(0);
+  const [playing, setPlaying] = React.useState(true);
+  const [played, setPlayed] = React.useState(0.32);
+  const song = SONGS[songIdx];
+
+  // Each song's "version" follows tweaks-panel override
+  const ctx = overrideCtx;
+
+  // Tick playback when playing
+  React.useEffect(() => {
+    if (!playing || clipMode || shareClip) return;
+    const i = setInterval(() => {
+      setPlayed(p => p >= 0.995 ? 0.0 : p + 0.0012);
+    }, 100);
+    return () => clearInterval(i);
+  }, [playing, clipMode, shareClip]);
+
+  const openSong = (i) => {
+    setSongIdx(i);
+    setNpView('ambient');
+    setPlayed(0);
+    setPlaying(true);
+  };
+  const nextSong = () => { const n = (songIdx + 1) % SONGS.length; setSongIdx(n); setPlayed(0); };
+  const prevSong = () => { const n = (songIdx - 1 + SONGS.length) % SONGS.length; setSongIdx(n); setPlayed(0); };
+
+  return (
+    <>
+    <div className="stage-scaler" ref={(el) => {
+      if (!el) return;
+      const fit = () => {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const naturalW = window.innerWidth > 1100 ? 702 : 402;
+        const naturalH = 872 + 60; /* phone + switcher */
+        const sc = Math.min(1, (W - 40) / naturalW, (H - 40) / naturalH);
+        el.style.transform = `scale(${sc})`;
+      };
+      fit();
+      if (!el._fitWired) {
+        window.addEventListener('resize', fit);
+        el._fitWired = true;
+      }
+    }}>
+    <div className="stage">
+      <div className="phone-stack">
+      <div style={{
+        width:402, height:872, borderRadius:54, overflow:'hidden',
+        position:'relative', background:C.bg,
+        boxShadow:`0 60px 120px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06), 0 0 80px ${C[ctx].glow}`,
+        fontFamily:'-apple-system,"SF Pro",system-ui',
+        WebkitFontSmoothing:'antialiased', color:C.text,
+        transition:'box-shadow 1s ease',
+      }}>
+        {/* dynamic island */}
+        <div style={{ position:'absolute', top:11, left:'50%', transform:'translateX(-50%)', width:126, height:37, borderRadius:24, background:'#000', zIndex:50 }}/>
+
+        {/* Ambient context animation (rain / sun motes / stars / golden) */}
+        <AmbientLayer ctx={ctx}/>
+
+        {/* Underlying tab screen */}
+        <div style={{ position:'absolute', inset:0, zIndex:1 }}>
+          {tab === 'feed'    && <FeedScreen    ctx={ctx} onPlay={openSong} currentSongIdx={songIdx}/>}
+          {tab === 'search'  && <SearchScreen  ctx={ctx} onPlay={openSong}/>}
+          {tab === 'library' && <LibraryScreen ctx={ctx} onPlay={openSong} currentSongIdx={songIdx}/>}
+          {tab === 'profile' && <ProfileScreen ctx={ctx}/>}
+        </div>
+
+        {/* Mini player (only when NP is collapsed) */}
+        {npView === null && (
+          <IMiniPlayer
+            song={song} ctx={ctx} played={played} playing={playing}
+            onExpand={() => setNpView('ambient')}
+            onPlayToggle={() => setPlaying(p => !p)}
+          />
+        )}
+
+        {/* Tab bar */}
+        <ITabBar active={tab} onTab={(t) => { setTab(t); /* keep np collapsed when switching tabs */ if(npView) setNpView(null); }}/>
+
+        {/* Now Playing — Ambient */}
+        {npView === 'ambient' && (
+          <INowPlayingAmbient
+            song={song} ctx={ctx} played={played} playing={playing}
+            onCollapse={() => setNpView(null)}
+            onExpand={() => setNpView('expanded')}
+            onDrawer={() => setDrawerOpen(true)}
+            onClip={() => setClipMode(true)}
+            onMore={() => setActionOpen(true)}
+            onPlayToggle={() => setPlaying(p => !p)}
+            onNext={nextSong} onPrev={prevSong}
+          />
+        )}
+
+        {/* Now Playing — Expanded */}
+        {npView === 'expanded' && (
+          <INowPlayingExpanded
+            song={song} ctx={ctx} played={played} playing={playing}
+            onCollapse={() => setNpView('ambient')}
+            onMore={() => setActionOpen(true)}
+            onPlayToggle={() => setPlaying(p => !p)}
+          />
+        )}
+
+        {/* Action sheet (3-dot menu) */}
+        {actionOpen && (
+          <IActionSheet
+            song={song} ctx={ctx}
+            onClose={() => setActionOpen(false)}
+            onClip={() => setClipMode(true)}
+            onShowDrawer={() => setDrawerOpen(true)}
+          />
+        )}
+
+        {/* Context drawer */}
+        {drawerOpen && <IContextDrawer ctx={ctx} onClose={() => setDrawerOpen(false)}/>}
+
+        {/* Clip maker */}
+        {clipMode && (
+          <ClipMaker
+            song={song} ctx={ctx}
+            onClose={() => setClipMode(false)}
+            onShare={(clip) => { setShareClip(clip); }}
+          />
+        )}
+
+        {/* Share sheet */}
+        {shareClip && (
+          <ShareSheet
+            song={song} ctx={ctx} clip={shareClip}
+            onClose={() => { setShareClip(null); setClipMode(false); }}
+          />
+        )}
+
+        {/* Home indicator */}
+        <div style={{ position:'absolute', bottom:8, left:0, right:0, zIndex:200, display:'flex', justifyContent:'center', pointerEvents:'none' }}>
+          <div style={{ width:139, height:5, borderRadius:100, background:'rgba(255,255,255,0.55)' }}/>
+        </div>
+      </div>
+
+      {/* Persistent context switcher — always visible */}
+      <div className="ctx-switcher">
+        <div className="ctx-switcher-label">Live context</div>
+        <div className="ctx-switcher-row">
+          {[
+            { v:'rainy',   e:'🌧', l:'Rainy' },
+            { v:'morning', e:'☀️', l:'Morning' },
+            { v:'night',   e:'🌙', l:'Late' },
+            { v:'golden',  e:'🌅', l:'Golden' },
+          ].map(o => (
+            <button key={o.v}
+              className={'ctx-btn ' + (overrideCtx === o.v ? 'on' : '')}
+              onClick={() => setTweak('context', o.v)}>
+              <span>{o.e}</span><span>{o.l}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      </div>
+
+      {/* Side hint */}
+      <div className="hints">
+        <div className="hint-card">
+          <div className="hint-eyebrow">Try this</div>
+          <div className="hint-title">Canari is not<br/>a player. Explore.</div>
+          <ul className="hint-list">
+            <li>Tap any song — Now Playing opens</li>
+            <li>Tap <em>Why this version?</em> to see the engine</li>
+            <li>Tap the context pill for live signals</li>
+            <li>Three-dot menu → save or share</li>
+            <li>“Clip this moment” → share with Canari sting</li>
+            <li>Swap tabs at the bottom</li>
+          </ul>
+          <div className="hint-foot">Switch the live context below the phone to see how rainy / morning / late / golden change every screen — ambient layer, version badge, stem balance.</div>
+        </div>
+      </div>
+
+    </div>
+    </div>
+
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Live context">
+        <TweakRadio
+          label="Moment"
+          value={overrideCtx}
+          onChange={(v) => setTweak('context', v)}
+          options={[
+            { value:'rainy',   label:'🌧 Rainy' },
+            { value:'morning', label:'☀️ Morning' },
+            { value:'night',   label:'🌙 Late' },
+            { value:'golden',  label:'🌅 Golden' },
+          ]}
+        />
+      </TweakSection>
+    </TweaksPanel>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<ProtoApp/>);
+</script>
+
+</body>
+</html>

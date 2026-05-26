@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canari — Project Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#F5A623;--gold-light:#FAC75A;
+  --black:#090907;--dark:#111110;--dark2:#181816;--dark3:#202020;
+  --surface:#2A2A28;--text:#F0EDE4;--muted:#888880;--dim:#444440;--white:#FAFAF7;
+}
+html,body{min-height:100vh;background:var(--black);color:var(--text);font-family:'Poppins',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.5;pointer-events:none;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")}
+
+.hub{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:80px 52px 100px}
+
+/* Header */
+.hub-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:72px}
+.hub-logo{display:flex;align-items:center;gap:14px}
+.hub-logo svg{height:32px}
+.hub-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.hub-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);animation:bl 2s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Intro */
+.hub-intro{margin-bottom:60px;max-width:780px}
+.label{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.label::before{content:'';width:20px;height:1px;background:var(--gold);display:block}
+.hub-intro h1{font-family:'DM Serif Display',serif;font-size:clamp(44px,5.5vw,68px);font-weight:400;line-height:1.05;color:var(--white);margin-bottom:24px;letter-spacing:-.01em}
+.hub-intro h1 em{font-style:italic;color:var(--gold)}
+.hub-intro p{font-size:17px;color:var(--muted);font-weight:300;line-height:1.75;max-width:620px}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:80px}
+.card{background:var(--dark2);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:32px 30px 28px;text-decoration:none;color:inherit;transition:transform .3s,border-color .3s,background .3s;display:flex;flex-direction:column;min-height:380px;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-3px);border-color:rgba(245,166,35,.25);background:var(--dark3)}
+.card-thumb{height:160px;border-radius:12px;margin-bottom:24px;overflow:hidden;position:relative;background:var(--dark3);border:1px solid rgba(255,255,255,.04)}
+.card-thumb svg{position:absolute;inset:0;width:100%;height:100%}
+.card-num{position:absolute;top:18px;right:22px;font-family:'DM Serif Display',serif;font-style:italic;font-size:14px;color:var(--dim)}
+.card-tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.card-tag.new{color:var(--gold)}
+.card-tag.new::after{content:'NEW';margin-left:10px;background:var(--gold);color:var(--black);padding:1px 6px;border-radius:3px;font-size:9px;letter-spacing:.08em}
+.card h3{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--white);margin-bottom:12px;line-height:1.15}
+.card p{font-size:13.5px;color:var(--muted);font-weight:300;line-height:1.65;margin-bottom:auto}
+.card-cta{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:13px;font-weight:500;color:var(--gold);letter-spacing:.02em}
+.card-cta svg{transition:transform .25s}
+.card:hover .card-cta svg{transform:translateX(3px)}
+
+/* Footer */
+.hub-foot{display:flex;justify-content:space-between;align-items:flex-end;padding-top:48px;border-top:1px solid rgba(255,255,255,.05)}
+.hub-foot p{font-size:12px;color:var(--dim);font-weight:300;line-height:1.7;max-width:520px}
+.hub-foot p em{font-style:italic;color:var(--muted)}
+.hub-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;color:var(--dim);font-weight:400;letter-spacing:.04em}
+.hub-meta span:first-child{color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.12em;font-size:10px}
+
+@media(max-width:900px){
+  .hub{padding:48px 24px 60px}
+  .cards{grid-template-columns:1fr;gap:14px}
+  .card{min-height:0}
+  .hub-foot{flex-direction:column;gap:20px;align-items:flex-start}
+  .hub-meta{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="hub">
+
+  <header class="hub-head">
+    <div class="hub-logo">
+      <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M182.418 98.2877C204.674 85.5092 233.116 93.1011 245.942 115.276L251.6 129.332C323.197 129.332 366.2 71.528 366.2 0.118558H211.087C185.737 -0.933791 159.785 5.00447 136.171 18.5347C112.33 32.2152 94.1482 51.9092 82.379 74.5347C70.9114 96.7092 56.4261 117.08 38.7722 134.744L35 138.427L38.6968 142.111C56.2753 159.625 70.7605 179.845 82.2281 201.869C83.2088 203.823 84.2651 205.702 85.3967 207.582C123.722 273.805 208.673 296.43 275.139 258.245C278.157 256.516 281.099 254.637 283.966 252.758C331.118 220.811 308.41 147.297 251.299 147.297C248.809 160 241.038 171.576 228.892 178.567C206.636 191.345 178.193 183.753 165.368 161.579C152.542 139.48 160.162 111.141 182.418 98.2877Z" fill="#F5A623"/>
+        <path d="M0 356.665C0 348.318 1.79818 340.893 5.39455 334.392C8.99091 327.81 13.9859 322.714 20.3794 319.102C26.8529 315.41 34.1655 313.564 42.3172 313.564C52.3071 313.564 60.8585 316.213 67.9713 321.51C75.0841 326.807 79.8393 334.031 82.2369 343.181H59.6996C58.0213 339.649 55.6238 336.96 52.5069 335.114C49.47 333.268 45.9935 332.345 42.0775 332.345C35.7638 332.345 30.649 334.553 26.733 338.967C22.8169 343.381 20.8589 349.281 20.8589 356.665C20.8589 364.049 22.8169 369.948 26.733 374.363C30.649 378.777 35.7638 380.984 42.0775 380.984C45.9935 380.984 49.47 380.061 52.5069 378.215C55.6238 376.369 58.0213 373.681 59.6996 370.149H82.2369C79.8393 379.299 75.0841 386.523 67.9713 391.82C60.8585 397.037 52.3071 399.645 42.3172 399.645C34.1655 399.645 26.8529 397.84 20.3794 394.228C13.9859 390.536 8.99091 385.439 5.39455 378.938C1.79818 372.436 0 365.012 0 356.665Z" fill="white"/>
+        <path d="M88.317 365.333C88.317 358.431 89.5957 352.371 92.1531 347.154C94.7904 341.937 98.3468 337.924 102.822 335.114C107.298 332.305 112.293 330.901 117.807 330.901C122.522 330.901 126.638 331.864 130.155 333.79C133.751 335.716 136.508 338.245 138.426 341.375V331.864H158.926V399.044H138.426V389.532C136.428 392.663 133.631 395.191 130.035 397.117C126.518 399.044 122.403 400.007 117.687 400.007C112.253 400.007 107.298 398.602 102.822 395.793C98.3468 392.903 94.7904 388.85 92.1531 383.633C89.5957 378.336 88.317 372.236 88.317 365.333ZM138.426 365.454C138.426 360.317 136.988 356.264 134.111 353.294C131.314 350.324 127.877 348.839 123.801 348.839C119.725 348.839 116.249 350.324 113.372 353.294C110.574 356.183 109.176 360.196 109.176 365.333C109.176 370.47 110.574 374.563 113.372 377.613C116.249 380.583 119.725 382.068 123.801 382.068C127.877 382.068 131.314 380.583 134.111 377.613C136.988 374.644 138.426 370.59 138.426 365.454Z" fill="white"/>
+        <path d="M212.117 331.141C219.949 331.141 226.183 333.71 230.818 338.847C235.533 343.903 237.891 350.886 237.891 359.795V399.044H217.512V362.564C217.512 358.069 216.353 354.578 214.035 352.09C211.718 349.602 208.601 348.358 204.685 348.358C200.769 348.358 197.652 349.602 195.334 352.09C193.016 354.578 191.858 358.069 191.858 362.564V399.044H171.358V331.864H191.858V340.773C193.935 337.803 196.733 335.476 200.249 333.79C203.766 332.024 207.722 331.141 212.117 331.141Z" fill="white"/>
+        <path d="M245.663 365.333C245.663 358.431 246.941 352.371 249.499 347.154C252.136 341.937 255.692 337.924 260.168 335.114C264.643 332.305 269.638 330.901 275.153 330.901C279.868 330.901 283.984 331.864 287.5 333.79C291.097 335.716 293.854 338.245 295.772 341.375V331.864H316.271V399.044H295.772V389.532C293.774 392.663 290.977 395.191 287.38 397.117C283.864 399.044 279.748 400.007 275.033 400.007C269.598 400.007 264.643 398.602 260.168 395.793C255.692 392.903 252.136 388.85 249.499 383.633C246.941 378.336 245.663 372.236 245.663 365.333ZM295.772 365.454C295.772 360.317 294.333 356.264 291.456 353.294C288.659 350.324 285.223 348.839 281.147 348.839C277.071 348.839 273.594 350.324 270.717 353.294C267.92 356.183 266.521 360.196 266.521 365.333C266.521 370.47 267.92 374.563 270.717 377.613C273.594 380.583 277.071 382.068 281.147 382.068C285.223 382.068 288.659 380.583 291.456 377.613C294.333 374.644 295.772 370.59 295.772 365.454Z" fill="white"/>
+        <path d="M349.203 343.06C351.601 339.368 354.598 336.479 358.194 334.392C361.79 332.225 365.786 331.141 370.182 331.141V352.933H364.548C359.433 352.933 355.597 354.056 353.039 356.304C350.482 358.471 349.203 362.323 349.203 367.862V399.044H328.704V331.864H349.203V343.06Z" fill="white"/>
+        <path d="M387.892 324.881C384.296 324.881 381.339 323.837 379.021 321.751C376.783 319.584 375.665 316.935 375.665 313.805C375.665 310.594 376.783 307.945 379.021 305.859C381.339 303.692 384.296 302.608 387.892 302.608C391.409 302.608 394.286 303.692 396.523 305.859C398.841 307.945 400 310.594 400 313.805C400 316.935 398.841 319.584 396.523 321.751C394.286 323.837 391.409 324.881 387.892 324.881ZM398.082 331.864V399.044H377.583V331.864H398.082Z" fill="white"/>
+      </svg>
+    </div>
+    <div class="hub-status">Private working draft</div>
+  </header>
+
+  <section class="hub-intro">
+    <div class="label">The project</div>
+    <h1>Three surfaces.<br>One <em>living</em> medium.</h1>
+    <p>Canari is music that breathes with your world — adapting in real time to weather, time, and context. This is the working hub: the public-facing site, the artist studio where music becomes contextual, and the listener app where it arrives.</p>
+  </section>
+
+  <div class="cards">
+
+    <a class="card" href="website.html">
+      <div class="card-thumb">
+        <span class="card-num">01</span>
+        <svg viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="g1" cx="50%" cy="60%" r="60%">
+              <stop offset="0%" stop-color="#F5A623" stop-opacity=".22"/>
+              <stop offset="100%" stop-color="#F5A623" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="320" height="160" fill="#0E0E0C"/>
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <rect x="106" y="50" width="108" height="60" rx="10" fill="#181816" stroke="rgba(255,255,255,.08)"/>
+          <circle cx="124" cy="78" r="8" fill="#F5A623" opacity=".25"/>
+          <rect x="140" y="72" width="60" height="4" rx="2" fill="rgba(255,255,255,.4)"/>
+          <rect x="140" y="82" width="42" height="3" rx="1.5" fill="rgba(255,255,255,.15)"/>
+          <g opacity=".5">
+            <rect x="118" y="98" width="2" height="6" rx="1" fill="#F5A623"/>
+            <rect x="124" y="94" width="2" height="10" rx="1" fill="#F5A623"/>
+            <rect x="130" y="90" width="2" height="14" rx="1" fill="#F5A623"/>
+            <rect x="136" y="96" width="2" height="8" rx="1" fill="#F5A623"/>
+            <rect x="142" y="92" width="2" height="12" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="148" y="96" width="2" height="8" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="154" y="98" width="2" height="6" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="160" y="94" width="2" height="10" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="166" y="98" width="2" height="6" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="172" y="96" width="2" height="8" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="178" y="92" width="2" height="12" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="184" y="94" width="2" height="10" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="190" y="96" width="2" height="8" rx="1" fill="rgba(255,255,255,.4)"/>
+            <rect x="196" y="98" width="2" height="6" rx="1" fill="rgba(255,255,255,.4)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="card-tag">Public site</div>
+      <h3>The Canari<br>website</h3>
+      <p>Marketing site for prospective listeners, artists, and partners. Experience, How It Works, For Artists, Tech Stack, Business Plan.</p>
+      <span class="card-cta">Open website
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="studio.html">
+      <div class="card-thumb">
+        <span class="card-num">02</span>
+        <svg viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice">
+          <rect width="320" height="160" fill="#131311"/>
+          <rect x="0" y="0" width="320" height="20" fill="#0D0D0B"/>
+          <circle cx="14" cy="10" r="3" fill="#F5A623"/>
+          <rect x="24" y="7" width="60" height="6" rx="1" fill="rgba(255,255,255,.25)"/>
+          <!-- grid -->
+          <g transform="translate(20,36)">
+            <rect width="56" height="100" fill="#181816" stroke="rgba(255,255,255,.04)"/>
+            <rect x="6" y="10" width="44" height="6" rx="1" fill="rgba(255,255,255,.18)"/>
+            <rect x="6" y="22" width="30" height="3" rx="1" fill="rgba(255,255,255,.08)"/>
+            <rect x="6" y="34" width="14" height="2" rx="1" fill="#7B9FD4"/>
+            <rect x="22" y="34" width="14" height="2" rx="1" fill="#9D7BD4"/>
+            <rect x="6" y="42" width="14" height="2" rx="1" fill="#D47B7B"/>
+            <rect x="22" y="42" width="14" height="2" rx="1" fill="#7BD4A0"/>
+          </g>
+          <!-- grid of cells -->
+          <g transform="translate(96,36)">
+            <rect width="204" height="100" fill="#0E0E0C" stroke="rgba(255,255,255,.04)"/>
+            <rect x="10" y="10" width="56" height="22" rx="3" fill="rgba(245,166,35,.18)" stroke="rgba(245,166,35,.4)"/>
+            <rect x="74" y="10" width="56" height="22" rx="3" fill="rgba(123,159,212,.18)" stroke="rgba(123,159,212,.4)"/>
+            <rect x="138" y="10" width="56" height="22" rx="3" fill="#202020" stroke="rgba(255,255,255,.08)"/>
+            <rect x="10" y="40" width="56" height="22" rx="3" fill="rgba(157,123,212,.14)" stroke="rgba(157,123,212,.3)"/>
+            <rect x="74" y="40" width="56" height="22" rx="3" fill="rgba(212,123,123,.14)" stroke="rgba(212,123,123,.3)"/>
+            <rect x="138" y="40" width="56" height="22" rx="3" fill="rgba(123,212,160,.14)" stroke="rgba(123,212,160,.3)"/>
+            <rect x="10" y="70" width="56" height="22" rx="3" fill="rgba(212,192,123,.18)" stroke="rgba(212,192,123,.4)"/>
+            <rect x="74" y="70" width="56" height="22" rx="3" fill="rgba(212,192,123,.18)" stroke="rgba(212,192,123,.4)"/>
+            <rect x="138" y="70" width="56" height="22" rx="3" fill="rgba(212,192,123,.18)" stroke="rgba(212,192,123,.4)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="card-tag">Artist tool</div>
+      <h3>Canari<br>Studio</h3>
+      <p>Where artists upload stems, define trigger sets — the moments their music belongs in — and publish contextual versions of each song.</p>
+      <span class="card-cta">Open Studio
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </a>
+
+    <a class="card" href="listener-app.html">
+      <div class="card-thumb">
+        <span class="card-num">03</span>
+        <svg viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="g3" cx="50%" cy="40%" r="70%">
+              <stop offset="0%" stop-color="#3a5a8a" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="#3a5a8a" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="320" height="160" fill="#0D0D0B"/>
+          <rect width="320" height="160" fill="url(#g3)"/>
+          <!-- three phones -->
+          <g transform="translate(40,18)">
+            <rect width="60" height="124" rx="14" fill="#181816" stroke="rgba(255,255,255,.06)"/>
+            <rect x="6" y="14" width="48" height="48" rx="6" fill="#1a2a4a"/>
+            <rect x="10" y="68" width="40" height="3" rx="1" fill="rgba(255,255,255,.5)"/>
+            <rect x="10" y="76" width="28" height="2" rx="1" fill="rgba(255,255,255,.2)"/>
+            <rect x="10" y="92" width="40" height="20" rx="3" fill="rgba(245,166,35,.12)" stroke="rgba(245,166,35,.3)"/>
+          </g>
+          <g transform="translate(130,12)">
+            <rect width="60" height="136" rx="14" fill="#181816" stroke="rgba(245,166,35,.25)"/>
+            <rect x="6" y="14" width="48" height="48" rx="6" fill="#2a1a3a"/>
+            <circle cx="30" cy="38" r="14" fill="none" stroke="#F5A623" stroke-width="1.5" opacity=".7"/>
+            <rect x="10" y="68" width="40" height="3" rx="1" fill="rgba(255,255,255,.6)"/>
+            <rect x="10" y="76" width="28" height="2" rx="1" fill="rgba(255,255,255,.2)"/>
+            <rect x="10" y="90" width="6" height="6" rx="1" fill="#F5A623"/>
+            <rect x="20" y="90" width="6" height="6" rx="1" fill="rgba(255,255,255,.15)"/>
+            <rect x="30" y="90" width="6" height="6" rx="1" fill="rgba(255,255,255,.15)"/>
+            <rect x="40" y="90" width="6" height="6" rx="1" fill="rgba(255,255,255,.15)"/>
+            <rect x="10" y="104" width="40" height="2" rx="1" fill="rgba(245,166,35,.4)"/>
+            <rect x="10" y="110" width="40" height="2" rx="1" fill="rgba(245,166,35,.2)"/>
+          </g>
+          <g transform="translate(220,18)">
+            <rect width="60" height="124" rx="14" fill="#181816" stroke="rgba(255,255,255,.06)"/>
+            <rect x="6" y="14" width="48" height="48" rx="6" fill="#3a2a0a"/>
+            <rect x="10" y="68" width="40" height="3" rx="1" fill="rgba(255,255,255,.5)"/>
+            <rect x="10" y="76" width="28" height="2" rx="1" fill="rgba(255,255,255,.2)"/>
+            <rect x="10" y="88" width="40" height="20" rx="10" fill="#F5A623" opacity=".25"/>
+          </g>
+        </svg>
+      </div>
+      <div class="card-tag new">Listener app</div>
+      <h3>Canari for<br>iPhone</h3>
+      <p>Interactive prototype. Tap a song, drill into the engine, clip a moment and share it with Canari audio branding. Use Tweaks to switch the live context.</p>
+      <span class="card-cta">Open prototype
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </a>
+
+  </div>
+
+  <footer class="hub-foot">
+    <p><em>Working hub.</em> This is a snapshot of the Canari product surface in May 2026. The website is in revision, Studio is in private beta with a handful of artists, the listener prototype is for internal review and pitch use only.</p>
+    <div class="hub-meta">
+      <span>v0.5 · interactive listener</span>
+      <span>Updated 26 May 2026</span>
+      <a href="listener.html" style="font-size:10.5px;color:rgba(245,166,35,0.7);text-decoration:none;margin-top:4px;font-weight:500;letter-spacing:.06em;text-transform:uppercase">Design canvas (all screens) ↗</a>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>
